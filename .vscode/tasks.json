@@ -4,6 +4,6 @@
     "version": "0.1.0",
     "command": "g++",
     "isShellCommand": true,
-    "args": ["-g", "${file}", "-o", "${file}.o"],
+    "args": ["-g", "${file}", "-lpthread", "-o", "${file}.o"],
     "showOutput": "always"
 }
