@@ -15,7 +15,6 @@ sem_t	product_sem;        //同步信号量，表示缓冲区有可用产品
 pthread_mutex_t mutex;
 
 
-
 using namespace std;
 
 void producer_run(void *arg)
