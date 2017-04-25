@@ -6,6 +6,12 @@
 #include "data_struct.h"
 #include <fcntl.h>
 
+
+
+//生产者1    主进程
+
+
+
 #define PRODUCER_NUM 2  //生产者数目
 #define CONSUMER_NUM 2  //消费者数目
 #define SHARED_SIZE 64
@@ -68,6 +74,7 @@ int main()
   pids[0] = getpid();
   P_WRITE = 0;
   P_READ = 0;
+  printf("Producer 1 program id wrote.\nBuffer pointers initialized.");
   sem_post(mutex);
 
  for (int i = 0; i < 10000; ++i)
@@ -80,7 +87,7 @@ int main()
     P_WRITE= ( P_WRITE + 1) % BUFFER_SIZE;
     int pro_num = (int)((P_WRITE-P_READ+BUFFER_SIZE)%BUFFER_SIZE);
 
-    printf("producer 1 write to buffer\n");
+    printf("producer 1 write to buffer, with data %d\n",i);
 		printf("product number is %d\n",pro_num == 0? 8:pro_num);
     sem_post(mutex);
     sem_post(product_sem); 

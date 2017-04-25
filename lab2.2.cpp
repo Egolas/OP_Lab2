@@ -5,6 +5,12 @@
 #include <sys/shm.h>
 #include "data_struct.h"
 #include <fcntl.h>
+#include <fstream>
+
+
+//消费者1
+
+
 
 #define PRODUCER_NUM 2  //生产者数目
 #define CONSUMER_NUM 2  //消费者数目
@@ -64,28 +70,39 @@ int main()
     sem_unlink("mutex");
     exit(EXIT_FAILURE);
   }
-  sem_wait(mutex);
-  pids[0] = getpid();
-  P_WRITE = 0;
-  P_READ = 0;
-  sem_post(mutex);
 
- for (int i = 0; i < 10000; ++i)
+  fstream file_out("a.out", fstream::out);
+  if(file_out.is_open())
   {
-    CommonData* data = new CommonData(getpid(), i);
-    usleep(rand() % 500000 + 500000);
-    sem_wait(room_sem);
-    sem_wait(mutex);
-    shared_stuff[P_WRITE] = *data;
-    P_WRITE= ( P_WRITE + 1) % BUFFER_SIZE;
-    int pro_num = (int)((P_WRITE-P_READ+BUFFER_SIZE)%BUFFER_SIZE);
-
-    printf("producer 1 write to buffer\n");
-		printf("product number is %d\n",pro_num == 0? 8:pro_num);
-    sem_post(mutex);
-    sem_post(product_sem); 
+    for (int i = 0; i < 10000; ++i)
+    {
+      usleep(rand() % 500000 + 500000);
+      sem_wait(product_sem);
+      sem_wait(mutex);
+      CommonData* data = &shared_stuff[P_READ];
+      if (data->program_id == pids[0])
+      {
+        file_out << data->data << "\t";
+        P_READ= ( P_READ + 1) % BUFFER_SIZE;
+        int pro_num = (int)((P_WRITE-P_READ+BUFFER_SIZE)%BUFFER_SIZE);
+        printf("Consumer 2 read from buffer, with data %d\n", data->data);
+	    	printf("product number is %d\n",pro_num == 0? 8:pro_num);
+        sem_post(mutex);
+        sem_post(room_sem);
+      }
+      else
+      {
+        --i;
+        sem_post(mutex);
+        sem_post(product_sem);
+      }
+    }
   }
-  
+  else
+  {
+    printf("Open file failed.");
+  }
+  file_out.close();
   sem_close(room_sem);
   sem_close(product_sem);
   sem_close(mutex);
@@ -126,7 +143,7 @@ int main()
     printf("shmctl(IPC_RMID) failed\n");
     exit(EXIT_FAILURE);
   }
-  printf("Process 1 done.");
+  printf("Process 3 done.");
   getchar();
   return 0;
 }
